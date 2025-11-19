@@ -4,7 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import { collection, onSnapshot, doc, updateDoc, addDoc, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Player } from '@/lib/types';
+import { jerseyNumberOptions, normalizePlayerName } from '@/lib/jerseyNumbers';
 import { initialPlayers } from '@/lib/initialPlayers';
+import { getRequiredItemsForPlayer } from '@/lib/equipmentRequirements';
 import PlayerList from '@/components/PlayerList';
 import EquipmentModal from '@/components/EquipmentModal';
 import AddPlayerModal from '@/components/AddPlayerModal';
@@ -25,6 +27,7 @@ export default function Home() {
   const [periodFilter, setPeriodFilter] = useState<string>('');
   const [loadingProgress, setLoadingProgress] = useState({ current: 0, total: 0 });
   const initializationInProgress = useRef(false);
+  const jerseyAssignmentInProgress = useRef(false);
 
   // Initialize players in Firestore if needed
   useEffect(() => {
@@ -248,6 +251,71 @@ export default function Home() {
       })()
     : [];
 
+  useEffect(() => {
+    if (players.length === 0 || jerseyAssignmentInProgress.current) {
+      return;
+    }
+
+    const existingAssignments = new Map<string, Set<number>>();
+    players.forEach(player => {
+      const normalized = normalizePlayerName(player.name);
+      if (!normalized) {
+        return;
+      }
+      if (!existingAssignments.has(normalized)) {
+        existingAssignments.set(normalized, new Set());
+      }
+      if (player.number !== undefined && player.number !== null) {
+        existingAssignments.get(normalized)?.add(player.number);
+      }
+    });
+
+    const playersNeedingNumbers = new Map<string, number>();
+
+    players.forEach(player => {
+      if (player.number === undefined || player.number === null) {
+        const normalized = normalizePlayerName(player.name);
+        if (!normalized) {
+          return;
+        }
+        const options = jerseyNumberOptions[normalized];
+        if (!options || options.length === 0) {
+          return;
+        }
+        const taken = existingAssignments.get(normalized) ?? new Set<number>();
+        const available = options.find(num => !taken.has(num));
+        if (available === undefined) {
+          return;
+        }
+        playersNeedingNumbers.set(player.id, available);
+        taken.add(available);
+        existingAssignments.set(normalized, taken);
+      }
+    });
+
+    if (playersNeedingNumbers.size === 0) {
+      return;
+    }
+
+    jerseyAssignmentInProgress.current = true;
+
+    (async () => {
+      try {
+        const playersRef = collection(db, 'players');
+        const batch = writeBatch(db);
+        playersNeedingNumbers.forEach((number, docId) => {
+          const docRef = doc(playersRef, docId);
+          batch.update(docRef, { number });
+        });
+        await batch.commit();
+      } catch (error) {
+        console.error('Error assigning jersey numbers:', error);
+      } finally {
+        jerseyAssignmentInProgress.current = false;
+      }
+    })();
+  }, [players]);
+
   const handleUpdateEquipment = async (playerId: string, equipment: any, jerseyNumber?: number) => {
     try {
       const playerRef = doc(db, 'players', playerId);
@@ -276,22 +344,8 @@ export default function Home() {
       const missing: string[] = [];
       const equipment = player.equipment;
       const neverReceivedSet = new Set(equipment.neverReceived || []);
-      const isSophomore = player.grade?.toLowerCase().includes('so');
-      
-      const sophomoreRequired = [
-        'Jersey - Sophomore Red', 'Jersey - White', 'Pants - Red',
-        'Helmet', 'Guardian', 'Shoulder', 'Girdle', 'Knee',
-        'Practice Pants', 'Belt', 'Win in the Dark (Book)'
-      ];
-      
-      const nonSophRequired = [
-        'Jersey - Red', 'Jersey - Black', 'Jersey - White',
-        'Pants - Red', 'Pants - Black', 'Pants - White',
-        'Helmet', 'Guardian', 'Shoulder', 'Girdle', 'Knee',
-        'Practice Pants', 'Belt', 'Win in the Dark (Book)'
-      ];
-      
-      const requiredSet = new Set(isSophomore ? sophomoreRequired : nonSophRequired);
+      const requiredItems = getRequiredItemsForPlayer(player);
+      const requiredSet = new Set(requiredItems);
       
       const checkItem = (has: boolean, label: string) => {
         if (requiredSet.has(label) && !has && !neverReceivedSet.has(label)) {

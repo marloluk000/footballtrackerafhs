@@ -1,4 +1,5 @@
 import { Player } from '@/lib/types';
+import { getRequiredItemsForPlayer, isJerseyOnlyPlayer } from '@/lib/equipmentRequirements';
 import { Check, X } from 'lucide-react';
 
 interface PlayerListProps {
@@ -10,37 +11,9 @@ export default function PlayerList({ players, onSelectPlayer }: PlayerListProps)
   const getEquipmentProgress = (player: Player) => {
     const equipment = player.equipment;
     const neverReceivedSet = new Set(equipment.neverReceived || []);
-    const isSophomore = player.grade?.toLowerCase().includes('so');
-    const baseRequiredItems = [
-      'Jersey - Red',
-      'Jersey - Black',
-      'Jersey - White',
-      'Pants - Red',
-      'Pants - Black',
-      'Pants - White',
-      'Helmet',
-      'Guardian',
-      'Shoulder',
-      'Girdle',
-      'Knee',
-      'Practice Pants',
-      'Belt',
-      'Win in the Dark (Book)',
-    ];
-    const sophomoreRequiredItems = [
-      'Jersey - Sophomore Red',
-      'Jersey - White',
-      'Pants - Red',
-      'Helmet',
-      'Guardian',
-      'Shoulder',
-      'Girdle',
-      'Knee',
-      'Practice Pants',
-      'Belt',
-      'Win in the Dark (Book)',
-    ];
-    const requiredSet = new Set(isSophomore ? sophomoreRequiredItems : baseRequiredItems);
+    const requiredItems = getRequiredItemsForPlayer(player);
+    const requiredSet = new Set(requiredItems);
+    const trackCustomItems = !isJerseyOnlyPlayer(player);
     let total = 0;
     let completed = 0;
 
@@ -81,9 +54,11 @@ export default function PlayerList({ players, onSelectPlayer }: PlayerListProps)
     countItem(equipment.winInTheDark, 'Win in the Dark (Book)');
 
     // Count custom items (they're always "completed" since they're only added when returned)
-    const customItemsCount = (equipment.customItems || []).length;
-    completed += customItemsCount;
-    total += customItemsCount;
+    if (trackCustomItems) {
+      const customItemsCount = (equipment.customItems || []).length;
+      completed += customItemsCount;
+      total += customItemsCount;
+    }
 
     return { completed, total, percentage: Math.round((completed / total) * 100) };
   };

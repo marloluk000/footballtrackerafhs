@@ -1,6 +1,7 @@
 import { Player } from '@/lib/types';
 import { X, Copy, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
+import { getRequiredItemsForPlayer } from '@/lib/equipmentRequirements';
 
 interface MissingEquipmentReportProps {
   players: Player[];
@@ -16,37 +17,8 @@ export default function MissingEquipmentReport({ players, onClose }: MissingEqui
 
     // Check jerseys
     const neverReceivedSet = new Set(equipment.neverReceived || []);
-    const isSophomore = player.grade?.toLowerCase().includes('so');
-    const baseRequiredItems = [
-      'Jersey - Red',
-      'Jersey - Black',
-      'Jersey - White',
-      'Pants - Red',
-      'Pants - Black',
-      'Pants - White',
-      'Helmet',
-      'Guardian',
-      'Shoulder',
-      'Girdle',
-      'Knee',
-      'Practice Pants',
-      'Belt',
-      'Win in the Dark (Book)',
-    ];
-    const sophomoreRequiredItems = [
-      'Jersey - Sophomore Red',
-      'Jersey - White',
-      'Pants - Red',
-      'Helmet',
-      'Guardian',
-      'Shoulder',
-      'Girdle',
-      'Knee',
-      'Practice Pants',
-      'Belt',
-      'Win in the Dark (Book)',
-    ];
-    const requiredSet = new Set(isSophomore ? sophomoreRequiredItems : baseRequiredItems);
+    const requiredItems = getRequiredItemsForPlayer(player);
+    const requiredSet = new Set(requiredItems);
     const considerItem = (condition: boolean, label: string) => {
       if (!requiredSet.has(label)) {
         return;
