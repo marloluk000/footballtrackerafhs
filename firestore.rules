@@ -1,0 +1,25 @@
+rules_version='2'
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Players collection - Equipment tracking
+    match /players/{playerId} {
+      // Allow anyone to read player data (for viewing equipment status)
+      allow read: if true;
+      
+      // Allow anyone to create/update players (for equipment tracking)
+      // For better security, you can restrict this to authenticated users:
+      // allow write: if request.auth != null;
+      allow create, update: if true;
+      
+      // Prevent deletion (equipment records should be kept)
+      allow delete: if false;
+    }
+    
+    // Deny access to any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
