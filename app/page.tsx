@@ -284,14 +284,14 @@ export default function Home() {
         'Practice Pants', 'Belt', 'Win in the Dark (Book)'
       ];
       
-      const allRequired = [
-        'Jersey - Red', 'Jersey - Sophomore Red', 'Jersey - Black', 'Jersey - White',
+      const nonSophRequired = [
+        'Jersey - Red', 'Jersey - Black', 'Jersey - White',
         'Pants - Red', 'Pants - Black', 'Pants - White',
         'Helmet', 'Guardian', 'Shoulder', 'Girdle', 'Knee',
         'Practice Pants', 'Belt', 'Win in the Dark (Book)'
       ];
       
-      const requiredSet = new Set(isSophomore ? sophomoreRequired : allRequired);
+      const requiredSet = new Set(isSophomore ? sophomoreRequired : nonSophRequired);
       
       const checkItem = (has: boolean, label: string) => {
         if (requiredSet.has(label) && !has && !neverReceivedSet.has(label)) {

@@ -13,7 +13,6 @@ export default function PlayerList({ players, onSelectPlayer }: PlayerListProps)
     const isSophomore = player.grade?.toLowerCase().includes('so');
     const baseRequiredItems = [
       'Jersey - Red',
-      'Jersey - Sophomore Red',
       'Jersey - Black',
       'Jersey - White',
       'Pants - Red',

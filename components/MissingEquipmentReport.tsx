@@ -19,7 +19,6 @@ export default function MissingEquipmentReport({ players, onClose }: MissingEqui
     const isSophomore = player.grade?.toLowerCase().includes('so');
     const baseRequiredItems = [
       'Jersey - Red',
-      'Jersey - Sophomore Red',
       'Jersey - Black',
       'Jersey - White',
       'Pants - Red',
