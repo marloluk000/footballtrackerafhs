@@ -13,6 +13,58 @@ import AddPlayerModal from '@/components/AddPlayerModal';
 import MissingEquipmentReport from '@/components/MissingEquipmentReport';
 import { Plus, Shield, ClipboardList, X, Download } from 'lucide-react';
 
+const countTrue = (values: boolean[]) => values.filter(Boolean).length;
+
+const getEquipmentScore = (player: Player) => {
+  const equipment = player.equipment;
+  if (!equipment) {
+    return 0;
+  }
+
+  let score = 0;
+  score += countTrue(Object.values(equipment.jersey));
+  score += countTrue(Object.values(equipment.pants));
+  score += countTrue([
+    equipment.helmet,
+    equipment.guardian,
+    equipment.shoulder,
+    equipment.girdle,
+    equipment.knee,
+    equipment.practicePants,
+    equipment.belt,
+    equipment.winInTheDark,
+  ]);
+  score += (equipment.customItems || []).length;
+  return score;
+};
+
+const getPlayerQualityScore = (player: Player) => {
+  let score = getEquipmentScore(player);
+  if (player.number !== undefined && player.number !== null) score += 10;
+  if (player.period) score += 2;
+  if (player.grade && player.grade !== '-') score += 1;
+  if (player.position) score += 1;
+  return score;
+};
+
+const dedupePlayers = (playerList: Player[]) => {
+  const uniquePlayers = new Map<string, Player>();
+
+  playerList.forEach(player => {
+    const key = player.studentId?.trim() || normalizePlayerName(player.name) || player.id;
+    if (!key) {
+      uniquePlayers.set(player.id, player);
+      return;
+    }
+    const existing = uniquePlayers.get(key);
+    if (!existing || getPlayerQualityScore(player) > getPlayerQualityScore(existing)) {
+      uniquePlayers.set(key, player);
+    }
+  });
+
+  return Array.from(uniquePlayers.values());
+};
+
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
@@ -41,9 +93,9 @@ export default function Home() {
         ...doc.data()
       })) as Player[];
 
-      // Always set players immediately - this makes UI responsive
-      setPlayers(existingPlayers);
-      setFilteredPlayers(existingPlayers);
+      const dedupedPlayers = dedupePlayers(existingPlayers);
+      setPlayers(dedupedPlayers);
+      setFilteredPlayers(dedupedPlayers);
       
       // Only set loading to false once we have some players or confirmed we're done
       if (existingPlayers.length > 0 || !initializing) {
