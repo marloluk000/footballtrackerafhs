@@ -377,14 +377,23 @@ export default function Home() {
 
   const handleUpdateEquipment = async (playerId: string, equipment: any, jerseyNumber?: number) => {
     try {
+      console.log('handleUpdateEquipment called');
+      console.log('Player ID:', playerId);
+      console.log('Equipment being saved:', JSON.stringify(equipment, null, 2));
+      console.log('Jersey number:', jerseyNumber);
+      
       const playerRef = doc(db, 'players', playerId);
       const updateData: any = { equipment };
       if (jerseyNumber !== undefined) {
         updateData.number = jerseyNumber || null;
       }
+      
+      console.log('Calling updateDoc with data:', JSON.stringify(updateData, null, 2));
       await updateDoc(playerRef, updateData);
+      console.log('updateDoc completed successfully');
     } catch (error) {
       console.error('Error updating equipment:', error);
+      console.error('Error details:', error);
     }
   };
 
