@@ -46,11 +46,7 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
     };
     const equipmentChanged = JSON.stringify(equipment) !== JSON.stringify(playerEquipmentNormalized);
     const numberChanged = jerseyNumber !== (player.number?.toString() || '');
-    const hasAnyChanges = equipmentChanged || numberChanged;
-    console.log('Equipment changed:', equipmentChanged);
-    console.log('Number changed:', numberChanged);
-    console.log('Setting hasChanges to:', hasAnyChanges);
-    setHasChanges(hasAnyChanges);
+    setHasChanges(equipmentChanged || numberChanged);
   }, [equipment, player.equipment, jerseyNumber, player.number]);
 
   const addCustomItem = () => {
@@ -84,33 +80,29 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   };
 
   const setAllEquipment = (value: boolean) => {
-    console.log('setAllEquipment called with value:', value);
-    setEquipment(prev => {
-      const newEquipment = {
-        ...prev,
-        jersey: {
-          red: value,
-          black: value,
-          white: value,
-          sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
-        },
-        pants: {
-          red: value,
-          black: value,
-          white: value,
-        },
-        helmet: value,
-        guardian: value,
-        shoulder: value,
-        girdle: value,
-        knee: value,
-        practicePants: value,
-        belt: value,
-        winInTheDark: value,
-      };
-      console.log('New equipment state:', newEquipment);
-      return newEquipment;
-    });
+    setEquipment(prev => ({
+      jersey: {
+        red: value,
+        black: value,
+        white: value,
+        sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
+      },
+      pants: {
+        red: value,
+        black: value,
+        white: value,
+      },
+      helmet: value,
+      guardian: value,
+      shoulder: value,
+      girdle: value,
+      knee: value,
+      practicePants: value,
+      belt: value,
+      winInTheDark: value,
+      customItems: prev.customItems || [],
+      neverReceived: prev.neverReceived || [],
+    }));
   };
 
   const toggleAllNeverReceived = (selectAll: boolean) => {
@@ -121,9 +113,6 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   };
 
   const handleSave = () => {
-    console.log('Save button clicked');
-    console.log('Has changes:', hasChanges);
-    console.log('Equipment:', equipment);
     const num = jerseyNumber.trim() === '' ? undefined : parseInt(jerseyNumber);
     onUpdate(player.id, equipment, num);
     onClose();
