@@ -221,4 +221,16 @@ export const initialPlayers: Omit<Player, 'id'>[] = [
   { name: "Damian C. Wilkinson", studentId: "9340733", period: "Period 5", grade: getGrade("Damian C. Wilkinson", existingPlayers), position: getPosition("Damian C. Wilkinson", existingPlayers), height: getHeight("Damian C. Wilkinson", existingPlayers), weight: getWeight("Damian C. Wilkinson", existingPlayers), equipment: { ...defaultEquipment } },
   { name: "Talon J. Willardson", studentId: "9336785", period: "Period 5", grade: getGrade("Talon J. Willardson", existingPlayers), position: getPosition("Talon J. Willardson", existingPlayers), height: getHeight("Talon J. Willardson", existingPlayers), weight: getWeight("Talon J. Willardson", existingPlayers), equipment: { ...defaultEquipment } },
   { name: "Jace Worthington", studentId: "9336891", period: "Period 5", grade: getGrade("Jace Worthington", existingPlayers), position: getPosition("Jace Worthington", existingPlayers), height: getHeight("Jace Worthington", existingPlayers), weight: getWeight("Jace Worthington", existingPlayers), equipment: { ...defaultEquipment } },
+
+  // Additional players added manually
+  { name: "Kaden Laursen", studentId: "9999001", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Kosei Nite", studentId: "9999002", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Kale Gardner", studentId: "9999003", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Eli Chadwick", studentId: "9999004", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Tani Vaki", studentId: "9999005", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Andrew Uluilakepa", studentId: "9999006", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Suone Uluilakepa", studentId: "9999007", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "David Lambourne", studentId: "9999008", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Tavi Luna", studentId: "9999009", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
+  { name: "Kenny Bowman", studentId: "9999010", period: "", grade: "-", position: "", height: "-", weight: "-", equipment: { ...defaultEquipment } },
 ];

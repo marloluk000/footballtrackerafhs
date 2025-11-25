@@ -32,6 +32,11 @@ const sophomoreRequiredItems = [
   'Win in the Dark (Book)',
 ];
 
+const sophomoreOverrideNames = new Set([
+  normalizePlayerName('McKay Magleby'),
+  normalizePlayerName('Mckay R. Magleby'),
+]);
+
 type JerseyOnlyOverride = {
   normalizedName: string;
   numbers: Set<number>;
@@ -77,7 +82,9 @@ export const getRequiredItemsForPlayer = (player: Player): string[] => {
     return override.items;
   }
 
-  const isSophomore = player.grade?.toLowerCase().includes('so');
+  const normalizedName = normalizePlayerName(player.name);
+  const isSophomoreOverride = sophomoreOverrideNames.has(normalizedName);
+  const isSophomore = player.grade?.toLowerCase().includes('so') || isSophomoreOverride;
   return isSophomore ? sophomoreRequiredItems : nonSophomoreRequiredItems;
 };
 

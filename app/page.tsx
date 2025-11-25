@@ -88,10 +88,6 @@ export default function Home() {
   const initializationInProgress = useRef(false);
   const jerseyAssignmentInProgress = useRef(false);
 
-  // Debug: log showAddModal state changes
-  useEffect(() => {
-    console.log('showAddModal changed to:', showAddModal);
-  }, [showAddModal]);
 
   // Initialize players in Firestore if needed
   useEffect(() => {
@@ -600,10 +596,7 @@ export default function Home() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                console.log('Add Player button clicked');
-                setShowAddModal(true);
-              }}
+              onClick={() => setShowAddModal(true)}
               className="bg-white text-primary px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 hover:bg-red-50 transition-colors shadow-md"
             >
               <Plus className="h-5 w-5" />
@@ -737,10 +730,7 @@ export default function Home() {
       {/* Add Player Modal */}
       {showAddModal && (
         <AddPlayerModal
-          onClose={() => {
-            console.log('Closing add player modal');
-            setShowAddModal(false);
-          }}
+          onClose={() => setShowAddModal(false)}
           onAdd={handleAddPlayer}
         />
       )}
