@@ -78,6 +78,38 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
     });
   };
 
+  const setAllEquipment = (value: boolean) => {
+    setEquipment(prev => ({
+      ...prev,
+      jersey: {
+        red: value,
+        black: value,
+        white: value,
+        sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
+      },
+      pants: {
+        red: value,
+        black: value,
+        white: value,
+      },
+      helmet: value,
+      guardian: value,
+      shoulder: value,
+      girdle: value,
+      knee: value,
+      practicePants: value,
+      belt: value,
+      winInTheDark: value,
+    }));
+  };
+
+  const toggleAllNeverReceived = (selectAll: boolean) => {
+    setEquipment(prev => ({
+      ...prev,
+      neverReceived: selectAll ? [...NEVER_RECEIVED_OPTIONS] : []
+    }));
+  };
+
   const handleSave = () => {
     const num = jerseyNumber.trim() === '' ? undefined : parseInt(jerseyNumber);
     onUpdate(player.id, equipment, num);
@@ -176,6 +208,31 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
     );
   };
 
+  const equipmentSelections = [
+    equipment.jersey.red,
+    equipment.jersey.black,
+    equipment.jersey.white,
+    equipment.pants.red,
+    equipment.pants.black,
+    equipment.pants.white,
+    equipment.helmet,
+    equipment.guardian,
+    equipment.shoulder,
+    equipment.girdle,
+    equipment.knee,
+    equipment.practicePants,
+    equipment.belt,
+    equipment.winInTheDark,
+  ];
+  if (isSophomore) {
+    equipmentSelections.push(equipment.jersey.sophomoreRed);
+  }
+  const allEquipmentSelected = equipmentSelections.every(Boolean);
+
+  const totalNeverReceivedOptions = NEVER_RECEIVED_OPTIONS.length;
+  const neverReceivedCount = equipment.neverReceived?.length || 0;
+  const allNeverReceivedSelected = totalNeverReceivedOptions > 0 && neverReceivedCount === totalNeverReceivedOptions;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -198,9 +255,9 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Jersey Number Section */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+          <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Jersey Number (Optional)
             </label>
@@ -214,6 +271,16 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
               max="99"
             />
             <p className="text-xs text-gray-500 mt-1">Leave blank if no jersey number assigned</p>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setAllEquipment(!allEquipmentSelected)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
+            >
+              {allEquipmentSelected ? 'Clear All Equipment' : 'Select All Equipment'}
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -403,6 +470,22 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
               </button>
               {showNeverReceived && (
                 <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-2">
+                    <span className="text-sm text-gray-700">
+                      {neverReceivedCount} / {totalNeverReceivedOptions} selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleAllNeverReceived(!allNeverReceivedSelected);
+                      }}
+                      className="text-sm font-semibold text-primary hover:text-red-700"
+                    >
+                      {allNeverReceivedSelected ? 'Clear All' : 'Select All'}
+                    </button>
+                  </div>
                   {NEVER_RECEIVED_OPTIONS.map(option => {
                     const selected = equipment.neverReceived?.includes(option);
                     return (

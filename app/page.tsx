@@ -6,7 +6,7 @@ import { db } from '@/lib/firebase';
 import { Player } from '@/lib/types';
 import { jerseyNumberOptions, normalizePlayerName } from '@/lib/jerseyNumbers';
 import { initialPlayers } from '@/lib/initialPlayers';
-import { getRequiredItemsForPlayer } from '@/lib/equipmentRequirements';
+import { getRequiredItemsForPlayer, shouldKeepPlayerEntriesSeparate } from '@/lib/equipmentRequirements';
 import PlayerList from '@/components/PlayerList';
 import EquipmentModal from '@/components/EquipmentModal';
 import AddPlayerModal from '@/components/AddPlayerModal';
@@ -51,7 +51,14 @@ const dedupePlayers = (playerList: Player[]) => {
   const uniquePlayers = new Map<string, Player>();
 
   playerList.forEach(player => {
-    const key = player.studentId?.trim() || normalizePlayerName(player.name) || player.id;
+    const normalizedName = normalizePlayerName(player.name);
+    const studentKey = player.studentId?.trim();
+    const allowSeparate = shouldKeepPlayerEntriesSeparate(player);
+    let key = studentKey || normalizedName || player.id;
+    if (allowSeparate) {
+      const numberKey = player.number !== undefined && player.number !== null ? player.number : player.id;
+      key = `${normalizedName || key}#${numberKey}`;
+    }
     if (!key) {
       uniquePlayers.set(player.id, player);
       return;

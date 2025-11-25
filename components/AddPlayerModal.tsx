@@ -67,16 +67,16 @@ export default function AddPlayerModal({ onClose, onAdd }: AddPlayerModalProps) 
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Student ID *
+              Student ID
             </label>
             <input
               type="text"
-              required
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none"
-              placeholder="Enter student ID"
+              placeholder="Enter student ID (optional)"
             />
+            <p className="text-xs text-gray-500 mt-1">Optional but helpful for duplicate detection.</p>
           </div>
 
           <div>

@@ -46,6 +46,18 @@ const jerseyOnlyOverrides: JerseyOnlyOverride[] = [
   },
 ];
 
+type DuplicateEntryOverride = {
+  normalizedName: string;
+  numbers: Set<number> | null;
+};
+
+const duplicateEntryOverrides: DuplicateEntryOverride[] = [
+  {
+    normalizedName: normalizePlayerName('Dalin Afu'),
+    numbers: new Set([0, 61]),
+  },
+];
+
 const findJerseyOnlyOverride = (player: Player) => {
   const normalizedName = normalizePlayerName(player.name);
   const number = player.number ?? -1;
@@ -71,4 +83,18 @@ export const getRequiredItemsForPlayer = (player: Player): string[] => {
 
 export const getNonSophomoreRequiredItems = () => nonSophomoreRequiredItems;
 export const getSophomoreRequiredItems = () => sophomoreRequiredItems;
+
+export const shouldKeepPlayerEntriesSeparate = (player: Player): boolean => {
+  const normalizedName = normalizePlayerName(player.name);
+  const number = player.number ?? -1;
+  return duplicateEntryOverrides.some(override => {
+    if (override.normalizedName !== normalizedName) {
+      return false;
+    }
+    if (!override.numbers || override.numbers.size === 0) {
+      return true;
+    }
+    return override.numbers.has(number);
+  });
+};
 
