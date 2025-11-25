@@ -39,13 +39,18 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   const [showNeverReceived, setShowNeverReceived] = useState(false);
 
   useEffect(() => {
-    const equipmentChanged = JSON.stringify(equipment) !== JSON.stringify({
+    const playerEquipmentNormalized = {
       ...player.equipment,
       customItems: player.equipment.customItems || [],
       neverReceived: player.equipment.neverReceived || []
-    });
+    };
+    const equipmentChanged = JSON.stringify(equipment) !== JSON.stringify(playerEquipmentNormalized);
     const numberChanged = jerseyNumber !== (player.number?.toString() || '');
-    setHasChanges(equipmentChanged || numberChanged);
+    const hasAnyChanges = equipmentChanged || numberChanged;
+    console.log('Equipment changed:', equipmentChanged);
+    console.log('Number changed:', numberChanged);
+    console.log('Setting hasChanges to:', hasAnyChanges);
+    setHasChanges(hasAnyChanges);
   }, [equipment, player.equipment, jerseyNumber, player.number]);
 
   const addCustomItem = () => {
@@ -79,28 +84,33 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   };
 
   const setAllEquipment = (value: boolean) => {
-    setEquipment(prev => ({
-      ...prev,
-      jersey: {
-        red: value,
-        black: value,
-        white: value,
-        sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
-      },
-      pants: {
-        red: value,
-        black: value,
-        white: value,
-      },
-      helmet: value,
-      guardian: value,
-      shoulder: value,
-      girdle: value,
-      knee: value,
-      practicePants: value,
-      belt: value,
-      winInTheDark: value,
-    }));
+    console.log('setAllEquipment called with value:', value);
+    setEquipment(prev => {
+      const newEquipment = {
+        ...prev,
+        jersey: {
+          red: value,
+          black: value,
+          white: value,
+          sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
+        },
+        pants: {
+          red: value,
+          black: value,
+          white: value,
+        },
+        helmet: value,
+        guardian: value,
+        shoulder: value,
+        girdle: value,
+        knee: value,
+        practicePants: value,
+        belt: value,
+        winInTheDark: value,
+      };
+      console.log('New equipment state:', newEquipment);
+      return newEquipment;
+    });
   };
 
   const toggleAllNeverReceived = (selectAll: boolean) => {
@@ -111,6 +121,9 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   };
 
   const handleSave = () => {
+    console.log('Save button clicked');
+    console.log('Has changes:', hasChanges);
+    console.log('Equipment:', equipment);
     const num = jerseyNumber.trim() === '' ? undefined : parseInt(jerseyNumber);
     onUpdate(player.id, equipment, num);
     onClose();
@@ -518,12 +531,14 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
         {/* Footer */}
         <div className="bg-gray-50 p-6 flex items-center justify-between border-t-2 border-gray-200">
           <button
+            type="button"
             onClick={onClose}
             className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSave}
             disabled={!hasChanges}
             className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
