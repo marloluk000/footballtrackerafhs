@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Player, Equipment } from '@/lib/types';
 import { X, ChevronDown } from 'lucide-react';
+import { isJerseyOnlyPlayer } from '@/lib/equipmentRequirements';
 
 interface EquipmentModalProps {
   player: Player;
@@ -28,6 +29,7 @@ const NEVER_RECEIVED_OPTIONS = [
 
 export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentModalProps) {
   const isSophomore = player.grade?.toLowerCase().includes('so');
+  const isJerseyOnly = isJerseyOnlyPlayer(player);
   const [equipment, setEquipment] = useState<Equipment>({
     ...player.equipment,
     customItems: player.equipment.customItems || [],
@@ -80,29 +82,43 @@ export default function EquipmentModal({ player, onClose, onUpdate }: EquipmentM
   };
 
   const setAllEquipment = (value: boolean) => {
-    setEquipment(prev => ({
-      jersey: {
-        red: value,
-        black: value,
-        white: value,
-        sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
-      },
-      pants: {
-        red: value,
-        black: value,
-        white: value,
-      },
-      helmet: value,
-      guardian: value,
-      shoulder: value,
-      girdle: value,
-      knee: value,
-      practicePants: value,
-      belt: value,
-      winInTheDark: value,
-      customItems: prev.customItems || [],
-      neverReceived: prev.neverReceived || [],
-    }));
+    if (isJerseyOnly) {
+      // For jersey-only players (like Dalin #61), only set jersey colors
+      setEquipment(prev => ({
+        ...prev,
+        jersey: {
+          red: value,
+          black: value,
+          white: value,
+          sophomoreRed: prev.jersey.sophomoreRed,
+        },
+      }));
+    } else {
+      // For regular players, set all equipment
+      setEquipment(prev => ({
+        jersey: {
+          red: value,
+          black: value,
+          white: value,
+          sophomoreRed: isSophomore ? value : prev.jersey.sophomoreRed,
+        },
+        pants: {
+          red: value,
+          black: value,
+          white: value,
+        },
+        helmet: value,
+        guardian: value,
+        shoulder: value,
+        girdle: value,
+        knee: value,
+        practicePants: value,
+        belt: value,
+        winInTheDark: value,
+        customItems: prev.customItems || [],
+        neverReceived: prev.neverReceived || [],
+      }));
+    }
   };
 
   const toggleAllNeverReceived = (selectAll: boolean) => {
